@@ -19,7 +19,8 @@ class Diction(Enum):
 
 
 class KNode:
-    def __init__(self, features, prediction=None):
+    def __init__(self, info, features, prediction=None):
+        self.info = info
         self.features = features
         if prediction is not None:
             self.prediction = prediction
