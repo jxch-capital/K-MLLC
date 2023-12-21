@@ -17,7 +17,7 @@ Machine Learning: Lorentzian Classification
 v1.0.0
 
 * &#x2705; 洛伦兹距离计算
-* 特征计算
+* &#x2705; 特征计算
 * 个股预测
 * 胜率
 * 优势率
