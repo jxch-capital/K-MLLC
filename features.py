@@ -16,6 +16,48 @@ class HLC3:
         return (high + low + 2 * close) / 4
 
 
+class FeaturesX:
+    def __init__(self, name, values):
+        self.name = name
+        self.values = values
+
+
+class FeaturesDefinition:
+    def __init__(self, features=None):
+        if features is None:
+            self.features = []
+        else:
+            self.features = features
+
+    def add_feature(self, name, values):
+        self.features.append(FeaturesX(name, values))
+
+    def all_features(self):
+        return self.features
+
+    def features_names(self):
+        return [f.name for f in self.features]
+
+    def features_num(self):
+        return len(self.features)
+
+    @staticmethod
+    def default(high=None, low=None, close=None, open=None, vol=None):
+        features_definition = FeaturesDefinition()
+        features_definition.add_feature('WT-10-11-hlc', n_wt(high, low, close, 10, 11, HLC3.hlc3_hlc))
+        features_definition.add_feature('ADX-20', n_adx(high, low, close, 20, 2))
+        features_definition.add_feature('RSI-14', n_rsi(close, 14, 1))
+        features_definition.add_feature('RSI-9', n_rsi(close, 9, 1))
+        features_definition.add_feature('CCI-9', n_cci(close, 20, 1))
+        return features_definition
+
+    def calculate(self, df):
+        for feature in self.all_features():
+            df[feature.name] = feature.values
+        df.dropna(axis=0, how='any', inplace=True)
+        return df
+
+
 def pad0(values, n):
     return np.pad(values, (n, 0), 'constant', constant_values=0)
 
@@ -30,8 +72,9 @@ def n_cci(price, cci_n, cci_sma_n):
     return ta.wrapper.SMAIndicator(cci_values, window=cci_sma_n).sma_indicator()
 
 
-def n_adx(high, low, close, adx_n):
-    return ta.wrapper.ADXIndicator(high=high, low=low, close=close, window=adx_n).adx()
+def n_adx(high, low, close, adx_n, adx_sma_n):
+    adx_values = ta.wrapper.ADXIndicator(high=high, low=low, close=close, window=adx_n).adx()
+    return ta.wrapper.SMAIndicator(adx_values, window=adx_sma_n).sma_indicator()
 
 
 def n_wt(high, low, close, rsi_n, wt_sma_n, hlc3_func=HLC3.hlc3_hlc):
