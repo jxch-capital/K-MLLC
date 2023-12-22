@@ -44,11 +44,14 @@ class FeaturesDefinition:
     @staticmethod
     def default(high=None, low=None, close=None, open=None, vol=None):
         features_definition = FeaturesDefinition()
-        features_definition.add_feature('WT-10-11-hlc', n_wt(high, low, close, 10, 11, HLC3.hlc3_hlc))
+        features_definition.add_feature('WT-10-11-hlc', n_wt(high, low, close, 10, 11, HLC3.hlc3_c))
         features_definition.add_feature('ADX-20', n_adx(high, low, close, 20, 2))
         features_definition.add_feature('RSI-14', n_rsi(close, 14, 1))
         features_definition.add_feature('RSI-9', n_rsi(close, 9, 1))
-        features_definition.add_feature('CCI-9', n_cci(close, 20, 1))
+        features_definition.add_feature('CCI-20', n_cci(close, 20, 1))
+        # features_definition.add_feature('MACD-26-12-9', n_macd_diff(close, 26, 12, 9))
+        # features_definition.add_feature('MACD-52-24-18', n_macd_diff(close, 52, 24, 18))
+        # features_definition.add_feature('OBV-3', n_obv(close, vol, 3))
         return features_definition
 
     def calculate(self, df):
@@ -84,3 +87,14 @@ def n_wt(high, low, close, rsi_n, wt_sma_n, hlc3_func=HLC3.hlc3_hlc):
     rsi_double_smooth = ta.wrapper.SMAIndicator(close=rsi_smooth, window=wt_sma_n).sma_indicator()
     wt = rsi_double_smooth - rsi_smooth
     return ta.wrapper.SMAIndicator(close=wt, window=wt_sma_n).sma_indicator()
+
+
+def n_macd_diff(price, window_slow=26, window_fast=12, window_sign=9):
+    return ta.wrapper.MACD(close=price, window_slow=window_slow, window_fast=window_fast,
+                           window_sign=window_sign).macd_diff().values
+
+
+def n_obv(close, vol, n_obv):
+    obv_values = ta.wrapper.OnBalanceVolumeIndicator(close=close, volume=vol).on_balance_volume()
+    return ta.wrapper.SMAIndicator(obv_values, window=n_obv).sma_indicator()
+

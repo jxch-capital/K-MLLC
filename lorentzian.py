@@ -84,6 +84,12 @@ def test_data_by_df(df, features_definition, source='Close', future_count=4):
         if next_position < len(df):
             features = [row[name] for name in features_definition.features_names()]
             target_row = df.iloc[next_position]
+
+            the_d = Diction.NEUTRAL
+            if target_row[source] > row[source] and target_row['Low'] > row['Low']:
+                the_d = Diction.LONG
+            elif target_row[source] < row[source] and target_row['High'] < row['High']:
+                the_d = Diction.SHORT
             k_node = KNode(features, prediction=Diction.press_of_prediction(target_row[source] - row[source]).value,
                            info=row)
             test_data.append(k_node)
